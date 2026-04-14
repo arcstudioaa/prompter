@@ -96,17 +96,25 @@ body {
   user-select: text;
 }
 
-#playBtn {
+#playBtn, #newScriptBtn {
   flex-shrink: 0;
-  background: var(--accent) !important;
-  color: #fff !important;
-  border: none !important;
-  border-radius: 12px !important;
-  padding: 14px !important;
-  font-size: 18px !important;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  width: 100%;
+}
+
+#playBtn {
+  background: var(--accent);
+  color: #fff;
+}
+
+#newScriptBtn {
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  border: 1px solid var(--ui-border);
 }
 
 /* ── Settings Panel ── */
@@ -500,7 +508,10 @@ body {
   </div>
 
   <textarea id="scriptArea" placeholder="Enter your script here..."></textarea>
-  <button id="playBtn">Play</button>
+  <div style="display:flex;gap:8px;">
+    <button id="newScriptBtn" style="flex:1;">New Script</button>
+    <button id="playBtn" style="flex:1;">Play</button>
+  </div>
 </div>
 
 <!-- ── Scripts Modal ── -->
@@ -593,6 +604,24 @@ $('#themeSelect').addEventListener('change', (e) => {
   state.theme = e.target.value;
   document.body.classList.toggle('theme-light', state.theme === 'light');
   saveSettings();
+});
+
+// ── New Script ──
+$('#newScriptBtn').addEventListener('click', () => {
+  const text = scriptArea.value.trim();
+  if (text) {
+    // Auto-save current script with today's date
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const name = `${y}${m}${d}`;
+    const scripts = JSON.parse(localStorage.getItem('prompter_scripts') || '[]');
+    scripts.unshift({ name, text, createdAt: now.toISOString() });
+    localStorage.setItem('prompter_scripts', JSON.stringify(scripts));
+  }
+  scriptArea.value = '';
+  localStorage.setItem('prompter_lastScript', '');
 });
 
 // ── Settings Toggle ──
